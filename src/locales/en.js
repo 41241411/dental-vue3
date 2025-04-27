@@ -1,0 +1,128 @@
+export default {
+    navbar: {
+        room: "Room",
+        reception: "Reception",
+        message: "Message",
+        no_message: "No Message",
+        language: "Language"
+    },
+    home: {
+        select_room: "Select Room",
+        chair_number: "Chair {id}",
+        details: "Details",
+        login: "Login",
+        password: "Password",
+        adminpassword: "Administrator Password",
+        cancel: "Cancel",
+        confirm: "Confirm",
+        success: "Login successful!",
+        error: "Login failed!",
+        input: "Please enter your password"
+    },
+    content: {
+        chair_number: "Chair {id}",
+        status: "Status",
+        usage_time: "Usage Time",
+        start: "Start",
+        extend: "Extend",
+        end: "End",
+        add: "Add",
+        serial_number: "Serial Number",
+        medical_record_number: "PT NO.",
+        appointment_time: "Appointment Time",
+        no_patient: "No Patient"
+    },
+    reception: {
+        room_status: "Room Status",
+        chair_number: "Chair {id}",
+        status: "Status",
+        usage_time: "Usage Time",
+        medical_record_number: "PT NO.",
+        appointment_time: "Appointment Time",
+        operation: "Operation",
+        add: "Add",
+        update: "Update",
+        delete: "Delete",
+        end: "End",
+        no_patient: "No Patient"
+    },
+    app_alert: {
+        confirm_delete: "Delete?",
+        confirm: "Confirm",
+        cancel: "Cancel",
+        delete_success: "Success",
+        delete_failure: "Failure"
+    },
+    content_alert: {
+        error: "Error",
+        incomplete_patient_info: "Please enter complete patient information!",
+        add_success: "Success",
+        add_failure: "Failure",
+        time_zero_warning: "Usage time is 0, please adjust the time first.",
+        timer_started: "Started",
+        start_failure: "Failure",
+        extend_success: "Success",
+        extend_failure: "Failure",
+        timer_ended: "Timer Ended",
+        end_failure: "End Failure",
+        front_desk_end: "Reception Ended",
+        front_desk_attempt_end: "Reception Attempted to End",
+        addTime_warning: "addTime cannot be negative."
+    },
+    content_model: {
+        add_patient: "Add Patient - Chair {id}",
+        medical_record_number: "PT NO.",
+        appointment_time: "Appointment Time",
+        extend_time: "Extend Time - Chair {id}",
+        cancel: "Cancel",
+        add: "Add",
+        extend: "Extend"
+    },
+    reception_alert: {
+        error: "Error",
+        incomplete_patient_info: "Please enter complete patient information!",
+        add_success: "Success",
+        add_failure: "Failure",
+        update_success: "Success",
+        update_failure: "Failure",
+        confirm_delete_patient: "Delete?",
+        confirm: "Confirm",
+        cancel: "Cancel",
+        delete_success: "Success",
+        delete_failure: "Failure",
+        timer_ended: "Timer Ended",
+        room_reset: "Room has been reset to free state.",
+        end_failure: "End Failure",
+        room_message: "Room: {id}, {message}",
+        room_message_failure: "Room {id} message failed to send"
+    },
+    reception_model: {
+        add_patient: "Add Patient - Chair {id}",
+        medical_record_number: "PT NO.",
+        appointment_time: "Appointment Time",
+        cancel: "Cancel",
+        add: "Add",
+        change_patient_room: "Change Patient Room",
+        room_number: "Room {index}",
+        confirm: "Confirm"
+    },
+    status: {
+        free: "Available",
+        in_use: "In use"
+    },
+    admin: {
+        manage: "Manage Accounts",
+        name: "Name",
+        name_table: "Chair { id }",
+        password: "Password",
+        operation: "Action",
+        update: "Update",
+        table_11: "Reception",
+        table_12: "Administrator",
+        modal_update: "Change Password",
+        cancel: "Cancel",
+        confirm: "Confirm",
+        success: "Password updated successfully!",
+        error: "Password update failed!"
+    }    
+};
