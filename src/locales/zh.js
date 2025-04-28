@@ -4,7 +4,7 @@ export default {
         reception: "櫃台",
         message: "訊息",
         no_message: "沒有訊息",
-        language: "語言"
+        language: "語言",
     },
     home: {
         select_room: "診室選擇",
