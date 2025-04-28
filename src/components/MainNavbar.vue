@@ -2,12 +2,14 @@
 import 'bootstrap';
 import * as bootstrap from 'bootstrap';
 import { useI18n } from 'vue-i18n';
-import { useRoute, RouterLink } from 'vue-router';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { ref, computed, onMounted, watchEffect } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 
 const { t, locale } = useI18n();
+const router = useRouter();
+
 
 // 控制 navbar 的開關
 const isNavbarOpen = ref(false);
@@ -65,7 +67,7 @@ const formatMessage = (message) => {
 
 // 更新導航欄並更新未讀數量
 const unreadCount = ref(0);  // 用 ref 來管理 message 陣列
-const unreadCount_id = ref(1);
+const unreadCount_id = ref(11);
 const calledOnce = ref(false);
 const route = useRoute();
 
@@ -220,7 +222,7 @@ const Receptionlogin = async () => {
                         adminPassword.value = "";
                         const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
                         if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                        window.location.href = "/Admin";
+                        router.push(`/Admin`);
                     });
                 } else {
                     // 管理者密碼錯誤
@@ -245,7 +247,7 @@ const Receptionlogin = async () => {
                     adminPassword.value = "";
                     const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
                     if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                    window.location.href = "/Reception";
+                    router.push(`/Reception`);
                 });
             }
         } else {
