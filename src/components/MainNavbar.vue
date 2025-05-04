@@ -1,14 +1,12 @@
 <script setup>
 import 'bootstrap';
-import * as bootstrap from 'bootstrap';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter, RouterLink } from 'vue-router';
+import { useRoute, RouterLink } from 'vue-router';
 import { ref, computed, onMounted, watchEffect } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 
 const { t, locale } = useI18n();
-const router = useRouter();
 
 
 // 控制 navbar 的開關
@@ -166,118 +164,6 @@ const changeLang = (lang) => {
 }
 //更改語言
 
-//打開ReceptionloginModal
-const ReceptionloginModal = () => {
-    const modalElement = document.getElementById("ReceptionloginModal");
-
-    // 確保只創建一個 Modal 實例
-    let receptionLoginModal = bootstrap.Modal.getInstance(modalElement);
-    if (!receptionLoginModal) {
-        receptionLoginModal = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
-    }
-
-    // 確保只保留一個 modal-backdrop
-    document.querySelectorAll('.modal-backdrop').forEach((el, index) => {
-        if (index > 0) el.remove(); // 只保留第一個，刪除多餘的
-    });
-
-    receptionLoginModal.show(); // 顯示 Modal
-}
-//打開ReceptionloginModal
-
-const receptionPassword = ref("")
-const adminPassword = ref("")
-
-const Receptionlogin = async () => {
-    try {
-        if (!receptionPassword.value) {
-            Swal.fire({
-                icon: "warning",
-                title: t("home.input"),
-            });
-            return;
-        }
-
-        // 先驗證一般密碼
-        const response = await axios.post("https://f4jtjhdx-8000.asse.devtunnels.ms/login/11/", {
-            room_id: 11,
-            password: receptionPassword.value
-        });
-
-        if (response.status === 200 && response.data.success) {
-            // 若有管理者密碼，則進一步驗證
-            if (adminPassword.value) {
-                const adminResponse = await axios.post("https://f4jtjhdx-8000.asse.devtunnels.ms/login/12/", {
-                    room_id: 12,
-                    password: adminPassword.value
-                });
-
-                if (adminResponse.status === 200 && adminResponse.data.success) {
-                    // 兩個密碼都正確，導向 Admin
-                    Swal.fire({
-                        icon: "success",
-                        title: t("home.success"),
-                    }).then(() => {
-                        receptionPassword.value = "";
-                        adminPassword.value = "";
-                        const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
-                        if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                        router.push(`/Admin`);
-                    });
-                } else {
-                    // 管理者密碼錯誤
-                    Swal.fire({
-                        icon: "error",
-                        title: t("home.error"),
-                    }).then(() => {
-                        receptionPassword.value = "";
-                        adminPassword.value = "";
-                        const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
-                        if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                        window.location.reload();
-                    });
-                }
-            } else {
-                // 只有一般密碼正確，導向 Reception
-                Swal.fire({
-                    icon: "success",
-                    title: t("home.success"),
-                }).then(() => {
-                    receptionPassword.value = "";
-                    adminPassword.value = "";
-                    const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
-                    if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                    router.push(`/Reception`);
-                });
-            }
-        } else {
-            // 一般密碼錯誤
-            Swal.fire({
-                icon: "error",
-                title: t("home.error"),
-            }).then(() => {
-                receptionPassword.value = "";
-                adminPassword.value = "";
-                const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
-                if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-                window.location.reload();
-            });
-        }
-    } catch (error) {
-        console.error("登入錯誤：", error);
-        Swal.fire({
-            icon: "error",
-            title: t("home.error"),
-        }).then(() => {
-            receptionPassword.value = "";
-            adminPassword.value = "";
-            const ReceptionloginModal = bootstrap.Modal.getInstance(document.getElementById("ReceptionloginModal"));
-            if (ReceptionloginModal) ReceptionloginModal.hide();  // 關閉 Modal
-            window.location.reload();
-        });
-    }
-}
-
 let socket = null
 
 const setupWebSocket = () => {
@@ -338,9 +224,9 @@ onMounted(() => {
                             }}</router-link>
                     </li><!-- 診室 -->
                     <li class="nav-item"><!-- 櫃台 -->
-                        <button class="btn" @click="ReceptionloginModal">
+                        <router-link to="/Reception" class="nav-link" active-class="active" aria-current="page">
                             <img class="bi mb-1" src="/SVG/櫃台.svg" style="height: 30px;" />
-                            {{ t("navbar.reception") }}</button>
+                            {{ t("navbar.reception") }}</router-link>
                     </li><!-- 櫃台 -->
                     <li class="nav-item d-flex justify-content-center"><!-- 訊息 -->
                         <button class="btn nav-link position-relative" type="button" data-bs-toggle="offcanvas"
@@ -406,40 +292,6 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ReceptionloginModal -->
-    <div class="modal fade" id="ReceptionloginModal" tabindex="-1" aria-labelledby="ReceptionloginModalLabel">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="ReceptionloginModalLabel">
-                        <img class="bi mb-1 me-1" src="/SVG/詳細資訊.svg" style="height: 30px;" />
-                        {{ $t("home.login") }} - {{ $t("navbar.reception")
-                        }}
-                    </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body my-3">
-                    <div class="input-group">
-                        <span class="input-group-text" id="passwordLabel">{{ $t("home.password") }}</span>
-                        <input type="text" class="form-control" v-model="receptionPassword"
-                            aria-labelledby="passwordLabel">
-                    </div>
-                    <div class="input-group mt-3">
-                        <span class="input-group-text" id="AdminpasswordLabel">{{ $t("home.adminpassword") }}</span>
-                        <input type="text" class="form-control" v-model="adminPassword"
-                            aria-labelledby="AdminpasswordLabel">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t("home.cancel")
-                    }}</button>
-                    <button type="button" class="btn btn-primary" @click="Receptionlogin()">
-                        <img class="bi mb-1 me-1" src="/SVG/確認.svg" style="height: 20px;" />
-                        {{ $t("home.confirm") }}</button>
                 </div>
             </div>
         </div>

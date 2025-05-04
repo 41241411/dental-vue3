@@ -11,17 +11,17 @@ const routes = [
     },
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue'),
+    path: '/Content/:id',
+    name: 'Content',
+    component: () => import('../views/ContentView.vue'),
     meta: {
       title: 'dental',
     },
   },
   {
-    path: '/Content/:id',
-    name: 'Content',
-    component: () => import('../views/ContentView.vue'),
+    path: '/Reception',
+    name: 'Reception',
+    component: () => import('../views/ReceptionView.vue'),
     meta: {
       title: 'dental',
     },
