@@ -24,9 +24,9 @@ const room = reactive({
 const Data = async () => {
     try {
         const response = await axios.get(`https://f4jtjhdx-8000.asse.devtunnels.ms/room/${id}`);
-        console.log(response.data);
+        //console.log(response.data);
         Object.assign(room, response.data);
-        console.log(room);
+        //console.log(room);
 
         if (room.time != 0) {
             updateTimer();
@@ -51,20 +51,73 @@ const setupWebSocket = () => {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log(data);
-    };
+        console.log("Content收到消息：", data);
+        if (data.event === "addPatient") {
+            Data(data.id);  // 透過 id 拉取對應的資料
+        } else if (data.event === "editPatient") {
+            Data(room.id);  // 透過 id 拉取對應的資料
+        } else if (data.event === "deletePatient") {
+            Data(room.id);  // 透過 id 拉取對應的資料
+        } else if (data.event === "endTimer_in_counter" && parseInt(data.id) === room.id) {
+            // console.log("endTimer_in_counter", data);
+            // console.log("endTimer_in_counter", data.id);
+            // console.log("room.id", room.id);
+            Data(room.id);  // 透過 id 拉取對應的資料
+            msgalert(data);
+        };
 
-    socket.onerror = (error) => {
-        console.error("WebSocket Content連接錯誤:", error);
-    };
+        socket.onerror = (error) => {
+            console.error("WebSocket Content連接錯誤:", error);
+        };
 
-    socket.onclose = () => {
-        console.warn("⚠️ WebSocket 已關閉，3 秒後重連...");
-        setTimeout(() => {
-            setupWebSocket(); // ⏳ 重新連線
-        }, 3000); // 延遲 3 秒重連
+        socket.onclose = () => {
+            console.warn("⚠️ WebSocket 已關閉，3 秒後重連...");
+            setTimeout(() => {
+                setupWebSocket(); // ⏳ 重新連線
+            }, 3000); // 延遲 3 秒重連
+        };
     };
+}
+
+let isPlaying = false; // 控制是否已在播放
+
+// 提示音
+const msgalert = async (data) => {
+    if (isPlaying) return; // 若已有音效播放中則跳出
+    isPlaying = true;
+
+    let audioSource;
+
+    if (data.event === "endTimer_in_counter") {
+        audioSource = new Audio("/music_2_cut.mp3");
+    } else {
+        audioSource = new Audio("/music_3_cut.mp3");
+    }
+
+    try {
+        await audioSource.play();
+        audioSource.loop = true;
+
+        Swal.fire({
+            icon: data.event === "endTimer_in_counter" ? "success" : "error",
+            title: data.event === "endTimer_in_counter"
+                ? t("content_alert.front_desk_end")
+                : t("content_alert.front_desk_attempt_end"),
+            didOpen: () => {
+                console.log('音效播放中');
+            },
+            willClose: () => {
+                audioSource.pause();  // 停止音效播放
+                isPlaying = false;    // 重置播放狀態
+                console.log('音效已停止');
+            }
+        });
+    } catch (error) {
+        console.warn("音效播放失敗:", error);
+        isPlaying = false; // 播放失敗時也要重置
+    }
 };
+
 
 //格式化狀態
 const formatState = (state) => {
@@ -454,39 +507,6 @@ const updateTimer = () => {
     }, 1000);  // 每秒減少 1 秒
 };
 
-//提示音
-// const msgalert = async (data) => {
-//     let audioSource;
-
-//     if (data.event === "endTimer_in_counter") {
-//         audioSource = new Audio("/music_2_cut.mp3");
-//     } else {
-//         audioSource = new Audio("/music_3_cut.mp3");
-//     }
-
-//     try {
-//         await audioSource.play();
-//         audioSource.loop = true;
-
-//         Swal.fire({
-//             icon: data.event === "endTimer_in_counter" ? "success" : "error",
-//             title: data.event === "endTimer_in_counter" 
-//                 ? this.$t("content_alert.front_desk_end")
-//                 : this.$t("content_alert.front_desk_attempt_end"),
-//             didOpen: () => {
-//                 // This is where you manage audio play state
-//                 console.log('音效播放中');
-//             },
-//             willClose: () => {
-//                 audioSource.pause();  // 停止音效播放
-//                 console.log('音效已停止');
-//             }
-//         });
-//     } catch (error) {
-//         console.warn("音效播放失敗:", error);
-//     }
-// };
-
 // 組件掛載時執行
 onMounted(() => {
     setupWebSocket();
@@ -653,4 +673,16 @@ onUnmounted(() => {
         </div>
     </div>
 </template>
-<style></style>
+<style>
+.green-dot::before {
+    content: "●";
+    color: green;
+    font-size: 1.35em;
+}
+
+.red-dot::before {
+    content: "●";
+    color: red;
+    font-size: 1.35em;
+}
+</style>

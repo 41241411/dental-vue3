@@ -5,7 +5,9 @@ import Navbar from './components/MainNavbar.vue'
 
 <template>
   <Navbar/>
+  <div class="mt-5">
   <RouterView />
+  </div>
 </template>
 
 <style>
@@ -15,6 +17,7 @@ import Navbar from './components/MainNavbar.vue'
   text-align: center;
   display: flex;
   flex-direction: column;
+  padding: 0;
 }
 
 #r html,

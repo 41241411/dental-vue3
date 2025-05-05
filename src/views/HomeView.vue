@@ -5,11 +5,17 @@ import axios from 'axios';
 
 const room = ref({}); // 存儲房間顏色
 
-// 生命週期函數：組件掛載時建立 WebSocket 連接
-onMounted(() => {
-  // 初始資料請求
-  Data();
-});
+// 獲取資料
+const Data = async () => {
+  try {
+    const response = await axios.get('https://f4jtjhdx-8000.asse.devtunnels.ms/rooms_and_patients/');
+    response.data.forEach(roomData => {
+      room.value[roomData.id] = roomData.color;
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
 
 // 顏色更新函數
 const changeColor = async (n, color) => {
@@ -26,18 +32,11 @@ const changeColor = async (n, color) => {
   }
 };
 
-// 獲取資料
-const Data = async () => {
-  try {
-    const response = await axios.get('https://f4jtjhdx-8000.asse.devtunnels.ms/rooms_and_patients/');
-    response.data.forEach(roomData => {
-      room.value[roomData.id] = roomData.color;
-    });
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-};
-
+// 生命週期函數：組件掛載時建立 WebSocket 連接
+onMounted(() => {
+  // 初始資料請求
+  Data();
+});
 </script>
 <template>
   <h1 class="my-5 text-white">{{ $t("home.select_room") }}</h1><!-- 診室選擇 -->
