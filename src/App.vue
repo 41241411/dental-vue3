@@ -53,7 +53,7 @@ body {
   /* 確保開關按鈕位於最上層 */
   top: 80px !important;
   /* 讓 Offcanvas 從 navbar 底部開始 */
-  height: calc(100% - 160px) !important;
+  height: calc(100% - 90px) !important;
   /* 調整高度，不讓它蓋住 navbar */
   border-radius: 15px !important;
   overflow-y: auto;

@@ -48,8 +48,10 @@ export default {
     },
     app_alert: {
         confirm_delete: "Delete?",
+        confirm_all_delete: "Are you sure you want to delete all messages?",
         confirm: "Confirm",
         cancel: "Cancel",
+        delete_all: "Delete All",
         delete_success: "Success",
         delete_failure: "Failure"
     },

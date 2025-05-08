@@ -48,8 +48,10 @@ export default {
     },
     app_alert: {
         confirm_delete: "คุณแน่ใจว่าจะลบข้อความนี้หรือไม่?",
+        confirm_all_delete: "คุณแน่ใจหรือไม่ว่าต้องการลบข้อความทั้งหมด?",
         confirm: "ยืนยันการลบ",
         cancel: "ยกเลิก",
+        delete_all: "ลบทั้งหมด",
         delete_success: "ลบสำเร็จ",
         delete_failure: "ลบไม่สำเร็จ"
     },

@@ -58,12 +58,18 @@ const setupWebSocket = () => {
             Data(room.id);  // 透過 id 拉取對應的資料
         } else if (data.event === "deletePatient") {
             Data(room.id);  // 透過 id 拉取對應的資料
-        } else if (data.event === "endTimer_in_counter" && parseInt(data.id) === room.id) {
-            // console.log("endTimer_in_counter", data);
-            // console.log("endTimer_in_counter", data.id);
-            // console.log("room.id", room.id);
+        } else if (data.event === "endTimer_in_counter" && parseInt(data.id) === room.id) {;
             Data(room.id);  // 透過 id 拉取對應的資料
             msgalert(data);
+        } else if (data.event === "startTimer") {
+            //console.log("startTimer", data);
+            Data();
+        } else if (data.event === "addTimer") {
+            //console.log("addTimer", data);
+            Data();
+        } else if (data.event === "endTimer") {
+            //console.log("endTimer", data);
+            Data();
         };
 
         socket.onerror = (error) => {
@@ -526,7 +532,7 @@ onUnmounted(() => {
                 <h1>{{ $t("content.chair_number", { id: room.id }) }}</h1><!-- 第 n 診療椅 -->
             </div>
             <div class="col-5 col-md-6 text-md-end">
-                <button class="btn btn-primary mt-1 btn-lg" style="width: 140px;" @click="openAddModel">
+                <button class="btn btn-primary btn-lg" style="width: 140px;" @click="openAddModel">
                     <img class="bi mb-1" src="/SVG/新增(白).svg" style="height: 20px;" />
                     {{
                         $t("content.add")
@@ -539,7 +545,7 @@ onUnmounted(() => {
                     formatState(room.state)
                 }}</h1><!-- 狀態 -->
             </div>
-            <div class="col-12 col-md-6 mt-3  text-md-end">
+            <div class="col-12 col-md-6 mt-2 text-md-end">
                 <button class="btn btn-primary me-1 btn-lg" @click="startTimer(room.id)" style="width: 32%;"
                     :disabled="room.state === 'in_use'">
                     <img class="bi mb-1" src="/SVG/開始.svg" style="height: 20px;" />

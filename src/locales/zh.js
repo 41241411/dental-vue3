@@ -48,8 +48,10 @@ export default {
     },
     app_alert: {
         confirm_delete: "確定要刪除這則訊息？",
+        confirm_all_delete: "確定要刪除全部訊息？",
         confirm: "確定刪除",
         cancel: "取消",
+        delete_all: "刪除全部",
         delete_success: "刪除成功",
         delete_failure: "刪除失敗"
     },

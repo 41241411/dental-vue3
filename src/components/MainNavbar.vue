@@ -131,8 +131,17 @@ const deleteMessage = async (messageId) => {
                     title: t("app_alert.delete_success"),
                 });
 
+                const messagedeleteMessage = {
+                    event: "deleteMessage",
+                };
+
+                // 傳送 WebSocket 訊息
+                socket.send(JSON.stringify(messagedeleteMessage));
+
+                console.log("已發送 WebSocket 訊息 deleteMessage", messagedeleteMessage);
+
                 // 呼叫資料更新函式（Data()）
-                await Data();
+                Data();
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -150,6 +159,55 @@ const deleteMessage = async (messageId) => {
 };
 // 刪除訊息
 
+// 刪除全部訊息
+const deleteAllMessage = async () => {
+    const result = await Swal.fire({
+        title: t("app_alert.confirm_all_delete"), // 使用 t() 來正確解析
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: t("app_alert.confirm"), // 使用 i18n 進行翻譯
+        cancelButtonText: t("app_alert.cancel")    // 使用 i18n 進行翻譯
+    });
+
+    // 如果用戶確認刪除
+    if (result.isConfirmed) {
+        try {
+            const response = await axios.delete(`https://f4jtjhdx-8000.asse.devtunnels.ms/del_all_message/`);
+
+            if (response.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: t("app_alert.delete_success"),
+                });
+
+                const messagedeleteMessage = {
+                    event: "deleteMessage",
+                };
+
+                // 傳送 WebSocket 訊息
+                socket.send(JSON.stringify(messagedeleteMessage));
+
+                console.log("已發送 WebSocket 訊息 deleteMessage", messagedeleteMessage);
+
+                // 呼叫資料更新函式（Data()）
+                Data();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: t("app_alert.delete_failure"),
+                });
+            }
+        } catch (error) {
+            console.error('刪除訊息時發生錯誤:', error);
+            Swal.fire({
+                icon: 'error',
+                title: t("app_alert.delete_failure"),
+            });
+        }
+    }
+}
 // 監聽路由變化
 watchEffect(() => {
     updateNavbar()  // 每次路由變更時更新導航欄
@@ -181,8 +239,9 @@ const setupWebSocket = () => {
         if (data.event === "addTimer" || data.event === "endTimer") {
             unreadCount.value++;  // 使用 ref 更新值
             updateUnreadCount();  // 更新未讀數量
+            Data();
         }
-        Data();  // 執行資料處理函數
+        Data();
     };
 
     socket.onerror = (error) => {
@@ -269,6 +328,8 @@ onMounted(() => {
                     <p>{{ t("navbar.no_message") }}</p>
                 </div>
                 <div v-else>
+                    <button type="button" class="btn btn-warning" @click="deleteAllMessage()">{{ t("app_alert.delete_all")
+                            }}</button>
                     <div v-for="(group, date) in groupedMessages" :key="date">
                         <!-- 日期標題 -->
                         <div class="text-center">
@@ -279,12 +340,12 @@ onMounted(() => {
                         <div v-for="msg in group" :key="msg.id" class="message">
                             <div class="">
                                 <div class="row mt-2 bg-dark-subtle  border border-dark-subtle rounded-4">
-                                    <div class="col-md-10 text-start">
+                                    <div class="col-9 text-start">
                                         <strong>{{ $t("navbar.room") }} {{ msg.room_id }}:</strong> {{
                                             formatMessage(msg.message) }} <br>
                                         <small>({{ new Date(msg.created_at).toLocaleTimeString() }})</small>
                                     </div>
-                                    <div class="col-md-2 mt-2">
+                                    <div class="col-3 mt-2">
                                         <button type="button" class="btn-close" @click="deleteMessage(msg.id)"
                                             aria-label="Close"></button>
                                     </div>

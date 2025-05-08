@@ -55,14 +55,23 @@ const setupWebSocket = () => {
         if (data.event === "addPatient") {
             Data();
         } else if (data.event === "startTimer") {
-            console.log("startTimer", data);
+            //console.log("startTimer", data);
             Data();
         } else if (data.event === "addTimer") {
-            console.log("addTimer", data);
+            //console.log("addTimer", data);
             msgalert(data)
             Data();
+        } else if (data.event === "deletePatient") {
+            //console.log("deletePatient", data);
+            Data();
+        } else if (data.event === "editPatient") {
+            //console.log("editPatient", data);
+            Data();
+        } else if (data.event === "endTimer_in_counter") {
+            //console.log("endTimer_in_counter", data);
+            Data();
         } else if (data.event === "endTimer") {
-            console.log("endTimer", data);
+            //console.log("endTimer", data);
             msgalert(data)
             Data();
         };
@@ -489,34 +498,49 @@ onUnmounted(() => {
                 <div class="card mb-3 border-5" :style="{ borderColor: room.color, borderRadius: '25px' }">
                     <div class="card-body">
                         <div class="row justify-content-between"><!-- row_1 -->
-                            <div class="col-12 col-md-6 mt-3">
+                            <div class="col-6 col-md-6 mt-3">
                                 <h1 class="card-title">{{ $t("reception.chair_number", { id: room.id }) }}</h1>
                                 <!-- 第 n 診療椅 -->
                             </div>
-                            <div class="col-12 col-md-6">
+                            <div class="col-6 col-md-6">
                                 <h1><span :class="room.state === 'free' ? 'green-dot' : 'red-dot'"></span>{{
                                     formatState(room.state)
                                 }}</h1><!-- 狀態 -->
                             </div>
                         </div>
                         <div class="row justify-content-between"><!-- row_2 -->
-                            <div class="col-12 col-md-6 mt-2">
+                            <div class="col-12 col-md-7 mt-2">
                                 <h2>{{ $t("reception.usage_time") }}: {{ formatTime(room.time) }}</h2><!-- 使用時間 -->
                             </div>
-                            <div class="col-12 col-md-6">
-                                <button class="btn btn-primary btn-lg mb-2 me-2" style="width: 8rem;"
-                                    @click="openAddModal(room.id)"> <img class="bi mb-1" src="/SVG/新增(白).svg"
-                                        style="height: 20px;" />
-                                    {{
-                                        $t("reception.add")
-                                    }}</button><!-- 新增按鈕 -->
-                                <button class="btn btn-secondary btn-lg mb-2 btn" style="width: 8rem;"
-                                    @click="endTimer(room.id)" :disabled="room.state === 'free'">
-                                    <img class="bi mb-1" src="/SVG/結束.svg" style="height: 20px;" />
-                                    {{ $t("reception.end") }}</button><!-- 結束按鈕 -->
+                            <div class="col-12 col-md-5">
+                                <div class="d-xl-inline-block d-none">
+                                    <button class="btn btn-primary btn-lg mb-2 me-1" style="width: 6.5rem;"
+                                        @click="openAddModal(room.id)"> <img class="bi mb-1" src="/SVG/新增(白).svg"
+                                            style="height: 20px;" />
+                                        {{
+                                            $t("reception.add")
+                                        }}</button><!-- 新增按鈕 -->
+                                    <button class="btn btn-secondary btn-lg mb-2" style="width: 6.5rem;"
+                                        @click="endTimer(room.id)" :disabled="room.state === 'free'">
+                                        <img class="bi mb-1" src="/SVG/結束.svg" style="height: 20px;" />
+                                        {{ $t("reception.end") }}</button><!-- 結束按鈕 -->
+                                </div>
+                                <div class="d-xl-none d-inline-block mt-1">
+                                    <button class="btn btn-primary mb-2 me-1" style="width: 6rem;"
+                                        @click="openAddModal(room.id)"> <img class="bi mb-1" src="/SVG/新增(白).svg"
+                                            style="height: 20px;" />
+                                        {{
+                                            $t("reception.add")
+                                        }}</button><!-- 新增按鈕 -->
+                                    <button class="btn btn-secondary mb-2 " style="width: 6rem;"
+                                        @click="endTimer(room.id)" :disabled="room.state === 'free'">
+                                        <img class="bi mb-1" src="/SVG/結束.svg" style="height: 20px;" />
+                                        {{ $t("reception.end") }}</button><!-- 結束按鈕 -->
+                                </div>
                             </div>
                         </div>
-                        <div class="mt-4" style="height: 250px; overflow-y: auto; display: block;"><!-- table -->
+                        <div class="mt-1" style="height: 250px; overflow-y: auto; overflow-x: hidden; display: block;">
+                            <!-- table -->
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
@@ -640,6 +664,11 @@ onUnmounted(() => {
     </div>
 </template>
 <style>
+html,
+body {
+    overflow-x: hidden;
+}
+
 .green-dot::before {
     content: "●";
     color: green;

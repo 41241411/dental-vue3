@@ -48,20 +48,20 @@ onMounted(() => {
           <div class="card-body">
             <div class="container text-center">
               <div class="row align-items-center">
-                <div class="col-12 col-md-12 col-lg-7 mt-2 d-flex align-items-center">
+                <div class="col-6 col-md-7 mt-2 d-flex align-items-center">
                   <h3 class="me-2">{{ $t("home.chair_number", { id: n }) }}</h3> <!-- 第 n 診療椅 -->
                   <img class="bi mb-1" src="/SVG/詳細資訊.svg" style="height: 30px;" />
                 </div>
-                <div class="col-12 col-md-5"><!-- 顏色下拉選單 -->
+                <div class="col-6 col-md-5"><!-- 顏色下拉選單 -->
                   <!-- 下拉選單觸發按鈕 -->
                   <div class="dropdown">
                     <button class="btn row dropdownMenuButton" type="button" :data-id="n" data-bs-toggle="dropdown"
                       aria-expanded="false"
                       :style="{ border: '2px solid black', borderRadius: '25px', width: '120px', height: '55px' }">
-                      <div class="btn col-6 col-md-6 me-1"
+                      <div class="btn col-6 col-md-8 me-1"
                         :style="{ backgroundColor: room[n], border: '2px solid black', borderRadius: '25px', width: '40px', height: '40px' }">
                       </div>
-                      <div class="btn col-6 col-md-6">
+                      <div class="btn col-6 col-md-4">
                         <!-- 自訂的SVG箭頭 -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                           class="bi bi-chevron-down" viewBox="0 0 15 15">
