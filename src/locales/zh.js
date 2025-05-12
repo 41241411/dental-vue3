@@ -53,7 +53,8 @@ export default {
         cancel: "取消",
         delete_all: "刪除全部",
         delete_success: "刪除成功",
-        delete_failure: "刪除失敗"
+        delete_failure: "刪除失敗",
+        count_error: "診室不存在"
     },
     content_alert: {
         error: "錯誤",

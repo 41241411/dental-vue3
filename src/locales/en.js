@@ -53,7 +53,8 @@ export default {
         cancel: "Cancel",
         delete_all: "Delete All",
         delete_success: "Success",
-        delete_failure: "Failure"
+        delete_failure: "Failure",
+        count_error: "Consultation room does not exist"
     },
     content_alert: {
         error: "Error",

@@ -3,14 +3,17 @@ import 'bootstrap';
 import * as bootstrap from 'bootstrap';
 import { onMounted, onUnmounted, reactive, computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 
 const { t, locale } = useI18n();
 
 // 取得路由參數
-const route = useRoute();
+const route  = useRoute();
+const router = useRouter();
+
+
 const id = route.params.id;
 const room = reactive({
     id: null,
@@ -31,10 +34,24 @@ const Data = async () => {
         if (room.time != 0) {
             updateTimer();
         }
+
+        const response1 = await axios.get('https://f4jtjhdx-8000.asse.devtunnels.ms/visibleCount/');
+        if (room.id > response1.data.visibleCount) {
+            Count_error();
+        }
     } catch (error) {
         console.error('Error fetching data:', error);
     }
 };
+
+const Count_error = () => {
+    Swal.fire({
+        title: t("app_alert.count_error"), // 使用 t() 來正確解析
+        icon: 'error',
+    }).then(() => {
+        router.push('/');
+    });
+}
 
 //WebSocket連線
 let socket = null
@@ -49,27 +66,21 @@ const setupWebSocket = () => {
         console.log("WebSocket Content連接成功");
     };
 
-    socket.onmessage = (event) => {
+    socket.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("Content收到消息：", data);
-        if (data.event === "addPatient") {
-            Data(data.id);  // 透過 id 拉取對應的資料
-        } else if (data.event === "editPatient") {
-            Data(room.id);  // 透過 id 拉取對應的資料
-        } else if (data.event === "deletePatient") {
-            Data(room.id);  // 透過 id 拉取對應的資料
-        } else if (data.event === "endTimer_in_counter" && parseInt(data.id) === room.id) {;
-            Data(room.id);  // 透過 id 拉取對應的資料
-            msgalert(data);
-        } else if (data.event === "startTimer") {
-            //console.log("startTimer", data);
-            Data();
-        } else if (data.event === "addTimer") {
-            //console.log("addTimer", data);
-            Data();
-        } else if (data.event === "endTimer") {
-            //console.log("endTimer", data);
-            Data();
+        if (data.event === "addPatient" || data.event === "editPatient" ||
+            data.event === "deletePatient" || data.event === "startTimer" ||
+            data.event === "addTimer" || data.event === "endTimer" ||
+            data.event === "changeColor"
+        ) {
+            await Data();
+        } else if (data.event === "endTimer_in_counter" && parseInt(data.id) === room.id) {
+            ;
+            await Data();
+            await msgalert(data);
+        } else if (data.event === "changeCount" && room.id > data.Count) {
+            Count_error();
         };
 
         socket.onerror = (error) => {
@@ -352,7 +363,7 @@ const addTimer = async (id) => {
             });
 
             // 重新讀取房間資料，更新病人表格
-            Data();
+            await Data();
 
             // 關閉 Modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('addtimeModal'));
@@ -451,7 +462,7 @@ const addPatient = async (id) => {
             appointmentTime.value = "";
 
             // 重新讀取房間資料，更新病人表格
-            Data();
+            await Data();
             updateTime();
 
             // 關閉 Modal
@@ -514,9 +525,9 @@ const updateTimer = () => {
 };
 
 // 組件掛載時執行
-onMounted(() => {
+onMounted(async () => {
     setupWebSocket();
-    Data();
+    await Data();
     updateTime();
     updateTimeInterval = setInterval(updateTime, 60000);
 });

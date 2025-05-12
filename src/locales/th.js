@@ -53,7 +53,8 @@ export default {
         cancel: "ยกเลิก",
         delete_all: "ลบทั้งหมด",
         delete_success: "ลบสำเร็จ",
-        delete_failure: "ลบไม่สำเร็จ"
+        delete_failure: "ลบไม่สำเร็จ",
+        count_error: "ไม่พบห้องตรวจ"
     },
     content_alert: {
         error: "ข้อผิดพลาด",

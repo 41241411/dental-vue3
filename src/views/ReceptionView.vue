@@ -10,6 +10,8 @@ const { t, locale } = useI18n();
 
 const rooms = reactive({});
 
+const num = ref(0)
+
 //初始資料
 const Data = async () => {
     try {
@@ -31,6 +33,9 @@ const Data = async () => {
             }
         });
 
+        const response1 = await axios.get('https://f4jtjhdx-8000.asse.devtunnels.ms/visibleCount/');
+        num.value = response1.data.visibleCount;
+
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -49,31 +54,18 @@ const setupWebSocket = () => {
         console.log("WebSocket Content連接成功");
     };
 
-    socket.onmessage = (event) => {
+    socket.onmessage = async (event) => {
         const data = JSON.parse(event.data);
         console.log("Reception收到消息：", data);
-        if (data.event === "addPatient") {
-            Data();
-        } else if (data.event === "startTimer") {
-            //console.log("startTimer", data);
-            Data();
-        } else if (data.event === "addTimer") {
-            //console.log("addTimer", data);
-            msgalert(data)
-            Data();
-        } else if (data.event === "deletePatient") {
-            //console.log("deletePatient", data);
-            Data();
-        } else if (data.event === "editPatient") {
-            //console.log("editPatient", data);
-            Data();
-        } else if (data.event === "endTimer_in_counter") {
-            //console.log("endTimer_in_counter", data);
-            Data();
-        } else if (data.event === "endTimer") {
-            //console.log("endTimer", data);
-            msgalert(data)
-            Data();
+        if (data.event === "addPatient" || data.event === "startTimer" ||
+            data.event === "deletePatient" || data.event === "editPatient" ||
+            data.event === "endTimer_in_counter" || data.event === "changeColor" ||
+            data.event === "changeCount"
+        ) {
+            await Data();
+        } else if (data.event === "addTimer" || data.event === "endTimer") {
+            await msgalert(data)
+            await Data();
         };
 
         socket.onerror = (error) => {
@@ -88,6 +80,8 @@ const setupWebSocket = () => {
         };
     };
 }
+
+
 
 let isPlaying = false; // 控制音效是否已播放中
 
@@ -142,7 +136,7 @@ const msgalert = async (data) => {
             }
         });
 
-        Data(); // 重新載入
+        await Data(); // 重新載入
     } catch (error) {
         console.error("發送訊息失敗:", error);
         isPlaying = false;
@@ -292,7 +286,7 @@ const addPatient = async () => {
             selectedRoomId.value = "";
 
             // 重新讀取房間資料，更新病人表格
-            Data();
+            await Data();
             updateTime();
         } else {
             Swal.fire({
@@ -360,7 +354,7 @@ const editPatient = async (room_id) => {
             console.log("已發送 WebSocket 訊息 editPatient：", messageeditPatient);
 
             // 重新讀取房間資料，更新病人表格
-            Data();
+            await Data();
         } else {
             Swal.fire({
                 icon: 'error',
@@ -415,7 +409,7 @@ const Delete = async (patient) => {
 
                 console.log("已發送 WebSocket 訊息 deletePatient", messagedeletePatient);
 
-                Data();
+                await Data();
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -462,7 +456,7 @@ const endTimer = async (id) => {
 
             console.log("已發送 WebSocket 訊息 endTimer", messagesendTimer);
 
-            Data();
+            await Data();
         } else {
             Swal.fire({
                 icon: "error",
@@ -479,9 +473,9 @@ const endTimer = async (id) => {
 }
 
 // 組件掛載時執行
-onMounted(() => {
+onMounted(async () => {
     setupWebSocket();
-    Data();
+    await Data();
     updateTime();
     updateTimeInterval = setInterval(updateTime, 60000);
 });
@@ -494,7 +488,7 @@ onUnmounted(() => {
     <h1 class="my-5 text-white">{{ $t("reception.room_status") }}</h1><!-- 診室狀態 -->
     <div class="Consult_room mt-5 text-center">
         <div class="row">
-            <div class="col-12 col-md-6 mt-1" v-for="room in rooms" :key="room.id">
+            <div class="col-12 mt-1" :class="{'col-md-12': num === 1, 'col-md-6': num > 1}" v-for="room in Object.values(rooms).slice(0, num)" :key="room.id">
                 <div class="card mb-3 border-5" :style="{ borderColor: room.color, borderRadius: '25px' }">
                     <div class="card-body">
                         <div class="row justify-content-between"><!-- row_1 -->

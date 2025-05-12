@@ -1,7 +1,40 @@
 <script setup>
 import 'bootstrap';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
+
+//WebSocket連線
+let socket = null
+
+const setupWebSocket = () => {
+  console.log("WebSocket Content連接");
+
+  // Vue.js 中的 WebSocket 連接範例
+  socket = new WebSocket("wss://f4jtjhdx-8000.asse.devtunnels.ms/ws/room/");
+
+  socket.onopen = () => {
+    console.log("WebSocket Content連接成功");
+  };
+
+  socket.onmessage = async (event) => {
+    const data = JSON.parse(event.data);
+    console.log("Home收到消息：", data);
+    if (data.event === "changeCount") {
+      Data();
+    }
+
+    socket.onerror = (error) => {
+      console.error("WebSocket Content連接錯誤:", error);
+    };
+
+    socket.onclose = () => {
+      console.warn("⚠️ WebSocket 已關閉，3 秒後重連...");
+      setTimeout(() => {
+        setupWebSocket(); // ⏳ 重新連線
+      }, 3000); // 延遲 3 秒重連
+    };
+  };
+}
 
 const room = ref({}); // 存儲房間顏色
 
@@ -12,6 +45,10 @@ const Data = async () => {
     response.data.forEach(roomData => {
       room.value[roomData.id] = roomData.color;
     });
+
+    const response1 = await axios.get('https://f4jtjhdx-8000.asse.devtunnels.ms/visibleCount/');
+    visibleCount.value = response1.data.visibleCount;
+
   } catch (error) {
     console.error('Error fetching data:', error);
   }
@@ -26,23 +63,75 @@ const changeColor = async (n, color) => {
 
     if (response.status === 200) {
       room.value[n] = color; // 更新顏色
+      const messagechangeColor = {
+        event: "changeColor",
+      };
+
+      // 傳送 WebSocket 訊息
+      socket.send(JSON.stringify(messagechangeColor));
+
+      console.log("已發送 WebSocket 訊息 messagechangeColor", messagechangeColor);
     }
   } catch (error) {
     console.error('Error updating color:', error);
   }
 };
 
+//診室選單數量
+const visibleCount = ref(0)
+
+// 監聽 visibleCount 的變化
+watch(visibleCount, (newValue, oldValue) => {
+  changeCount(newValue);
+  console.log(`visibleCount 改變：從 ${oldValue} ➜ ${newValue}`)
+})
+
+// 更新診室選單數量
+const changeCount = async (Count) => {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+  try {
+    const response = await axios.post(`https://f4jtjhdx-8000.asse.devtunnels.ms/update_visibleCount/`, {
+      Count: Count
+    });
+
+    if (response.status === 200) {
+      const messagechangeCount = {
+        event: "changeCount",
+        Count: Count
+      };
+
+      // 傳送 WebSocket 訊息
+      socket.send(JSON.stringify(messagechangeCount));
+
+      console.log("已發送 WebSocket 訊息 messagechangeCount", messagechangeCount);
+    }
+  } catch (error) {
+    console.error('Error updating Count:', error);
+  }}
+};
+
 // 生命週期函數：組件掛載時建立 WebSocket 連接
-onMounted(() => {
+onMounted(async () => {
   // 初始資料請求
-  Data();
+  await Data();
+  setupWebSocket();
 });
 </script>
 <template>
-  <h1 class="my-5 text-white">{{ $t("home.select_room") }}</h1><!-- 診室選擇 -->
+  <div class="row justify-content-end my-5">
+    <div class="col-4">
+      <h1 class="text-white">{{ $t("home.select_room") }} </h1><!-- 診室選擇 -->
+    </div>
+    <div class="col-4">
+      <select v-model="visibleCount" style="font-size: 33px; border-radius: 8px;">
+        <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+      </select>
+    </div>
+  </div>
+
   <div class="Consult_room mt-5 text-center">
     <div class="row">
-      <div class="col-12 col-md-4" v-for="n in 10" :key="n">
+      <div class="col-12" :class="{'col-md-12': visibleCount <= 2, 'col-md-4': visibleCount > 2}" v-for="n in visibleCount" :key="n">
         <router-link :to="`/Content/${n}`" class="card text-center mb-3 w-100"
           :style="{ border: '5px solid ' + room[n], textDecoration: 'none', borderRadius: '25px' }">
           <div class="card-body">
