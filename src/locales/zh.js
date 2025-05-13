@@ -17,7 +17,8 @@ export default {
         confirm: "確定",
         success: "登入成功!",
         error: "登入失敗",
-        input: "請輸入密碼"
+        input: "請輸入密碼",
+        hide: "無法隱藏診間"
     },
     content: {
         chair_number: "第 {id} 診療椅",

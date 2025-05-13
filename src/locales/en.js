@@ -17,7 +17,8 @@ export default {
         confirm: "Confirm",
         success: "Login successful!",
         error: "Login failed!",
-        input: "Please enter your password"
+        input: "Please enter your password",
+        hide: "Cannot hide the room"
     },
     content: {
         chair_number: "Chair {id}",

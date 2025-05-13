@@ -1,7 +1,11 @@
 <script setup>
 import 'bootstrap';
 import { ref, onMounted, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import axios from 'axios';
+import Swal from 'sweetalert2'
+
+const { t } = useI18n();
 
 //WebSocket連線
 let socket = null
@@ -81,33 +85,54 @@ const changeColor = async (n, color) => {
 const visibleCount = ref(0)
 
 // 監聽 visibleCount 的變化
-watch(visibleCount, (newValue, oldValue) => {
-  changeCount(newValue);
-  console.log(`visibleCount 改變：從 ${oldValue} ➜ ${newValue}`)
+watch(visibleCount, async (newValue, oldValue) => {
+  if (newValue < oldValue) {
+    const response = await axios.get(`https://f4jtjhdx-8000.asse.devtunnels.ms/rooms_and_patients/`)
+    const rooms = response.data;
+    //console.log(rooms)
+
+    const toBeHiddenRooms = rooms.slice(newValue, oldValue);
+    const allFree = toBeHiddenRooms.every(room => room.state === 'free');
+
+    if (allFree) {
+      changeCount(newValue);
+      //console.log(`visibleCount 改變：從 ${oldValue} ➜ ${newValue}`);
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: t("home.hide"),
+      });
+      visibleCount.value = oldValue;
+    }
+  } else {
+    changeCount(newValue);
+    //console.log(`visibleCount 改變：從 ${oldValue} ➜ ${newValue}`)
+  }
 })
 
 // 更新診室選單數量
 const changeCount = async (Count) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
-  try {
-    const response = await axios.post(`https://f4jtjhdx-8000.asse.devtunnels.ms/update_visibleCount/`, {
-      Count: Count
-    });
-
-    if (response.status === 200) {
-      const messagechangeCount = {
-        event: "changeCount",
+    try {
+      const response = await axios.post(`https://f4jtjhdx-8000.asse.devtunnels.ms/update_visibleCount/`, {
         Count: Count
-      };
+      });
 
-      // 傳送 WebSocket 訊息
-      socket.send(JSON.stringify(messagechangeCount));
+      if (response.status === 200) {
+        const messagechangeCount = {
+          event: "changeCount",
+          Count: Count
+        };
 
-      console.log("已發送 WebSocket 訊息 messagechangeCount", messagechangeCount);
+        // 傳送 WebSocket 訊息
+        socket.send(JSON.stringify(messagechangeCount));
+
+        console.log("已發送 WebSocket 訊息 messagechangeCount", messagechangeCount);
+      }
+    } catch (error) {
+      console.error('Error updating Count:', error);
     }
-  } catch (error) {
-    console.error('Error updating Count:', error);
-  }}
+  }
 };
 
 // 生命週期函數：組件掛載時建立 WebSocket 連接
@@ -131,7 +156,8 @@ onMounted(async () => {
 
   <div class="Consult_room mt-5 text-center">
     <div class="row">
-      <div class="col-12" :class="{'col-md-12': visibleCount <= 2, 'col-md-4': visibleCount > 2}" v-for="n in visibleCount" :key="n">
+      <div class="col-12" :class="{ 'col-md-12': visibleCount <= 2, 'col-md-4': visibleCount > 2 }"
+        v-for="n in visibleCount" :key="n">
         <router-link :to="`/Content/${n}`" class="card text-center mb-3 w-100"
           :style="{ border: '5px solid ' + room[n], textDecoration: 'none', borderRadius: '25px' }">
           <div class="card-body">
